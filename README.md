@@ -1,2 +1,2 @@
-# draw_auc_with_turtle
-Code for drawing AUC curves with turtle graphics
+# Draw ROC curve with turtle graphics
+Code for drawing ROC curves with turtle graphics
