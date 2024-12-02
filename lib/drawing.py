@@ -20,10 +20,6 @@ def set_up_turtle_screen(canvas_width=500, canvas_height=500, margin=5) -> turtl
     return screen
 
 
-def draw_roc_curve_with_a_turtle(y_true: list[bool], y_pred: list[float], color)  -> turtle.Canvas:
-    return draw_roc_curve_with_multiple_turtles(y_true, [y_pred], [color])
-
-
 def get_sorted_labels(y_true: list[bool], y_pred: list[float]) -> list[bool]:
     labels_scores = list(zip(y_true, y_pred))
     labels_scores.sort(key=lambda x: x[1], reverse=True)
@@ -37,7 +33,11 @@ def start_turtle_at_the_bottom_left(t: turtle.Turtle, canvas_width=500, canvas_h
     t.setheading(0)
 
 
-def draw_roc_curve_with_multiple_turtles(y_true: list[bool], y_pred: list[list[float]], colors: list[str], canvas_width=500, canvas_height=500, margin=20) -> turtle.Canvas:
+def draw_roc_curve_with_a_turtle(y_true: list[bool], y_pred: list[float], color, stop_at)  -> turtle.Canvas:
+    return draw_roc_curve_with_multiple_turtles(y_true, [y_pred], [color], stop_at=stop_at)
+
+
+def draw_roc_curve_with_multiple_turtles(y_true: list[bool], y_pred: list[list[float]], colors: list[str], canvas_width=500, canvas_height=500, margin=20, stop_at=0.5) -> turtle.Canvas:
     screen = set_up_turtle_screen(canvas_width, canvas_height, margin)
 
     number_of_positive_labels = sum(y_true)
@@ -57,6 +57,8 @@ def draw_roc_curve_with_multiple_turtles(y_true: list[bool], y_pred: list[list[f
         labels_sorted.append(get_sorted_labels(y_true, y_pred_per_classifier))
 
     for i in range(len(y_true)):
+        if i > stop_at * len(y_true):
+            break
         with turtle.hold_canvas(screen.cv):
             for j, t in enumerate(turtles):
                 move_turtle(t, labels_sorted[j][i], step_size_up, step_size_right)
