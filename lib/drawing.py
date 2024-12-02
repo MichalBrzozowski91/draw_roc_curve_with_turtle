@@ -1,5 +1,8 @@
+from typing import Optional
+
 from IPython.display import display
 import ipyturtle3 as turtle
+
 
 def move_turtle(t: turtle.Turtle, label: bool, step_size_up: int, step_size_right: int):
     if label:
@@ -11,12 +14,28 @@ def move_turtle(t: turtle.Turtle, label: bool, step_size_up: int, step_size_righ
 
 
 def set_up_turtle_screen(canvas_width=500, canvas_height=500, margin=5) -> turtle.TurtleScreen:
-    cv = turtle.Canvas(width=canvas_width + 2 * margin,height=canvas_height + 2 * margin)
+    cv = turtle.Canvas(width=canvas_width + 2 * margin, height=canvas_height + 2 * margin)
     display(cv)
     screen = turtle.TurtleScreen(cv)
-    pg = [- canvas_width//2, canvas_height//2, canvas_width//2, canvas_height//2, canvas_width//2, - canvas_height//2, - canvas_width//2, - canvas_height//2]
+    pg = [
+        -canvas_width // 2,
+        canvas_height // 2,
+        canvas_width // 2,
+        canvas_height // 2,
+        canvas_width // 2,
+        -canvas_height // 2,
+        -canvas_width // 2,
+        -canvas_height // 2,
+    ]
     cv.create_polygon(pg, fill="white", outline="black")
-    cv.create_line(- canvas_width//2, canvas_height//2, canvas_width//2, - canvas_height//2, fill="grey", width=1)
+    cv.create_line(
+        -canvas_width // 2,
+        canvas_height // 2,
+        canvas_width // 2,
+        -canvas_height // 2,
+        fill="grey",
+        width=1,
+    )
     return screen
 
 
@@ -28,16 +47,29 @@ def get_sorted_labels(y_true: list[bool], y_pred: list[float]) -> list[bool]:
 
 
 def start_turtle_at_the_bottom_left(t: turtle.Turtle, canvas_width=500, canvas_height=500):
-    start_x, start_y = -canvas_width//2, -canvas_height//2
+    start_x, start_y = -canvas_width // 2, -canvas_height // 2
     t.teleport(start_x, start_y)
     t.setheading(0)
 
 
-def draw_roc_curve_with_a_turtle(y_true: list[bool], y_pred: list[float], color, stop_at)  -> turtle.Canvas:
+def draw_roc_curve_with_a_turtle(
+    y_true: list[bool],
+    y_pred: list[float],
+    color: str = "blue",
+    stop_at: Optional[float] = None,
+) -> turtle.Canvas:
     return draw_roc_curve_with_multiple_turtles(y_true, [y_pred], [color], stop_at=stop_at)
 
 
-def draw_roc_curve_with_multiple_turtles(y_true: list[bool], y_pred: list[list[float]], colors: list[str], canvas_width=500, canvas_height=500, margin=20, stop_at=0.5) -> turtle.Canvas:
+def draw_roc_curve_with_multiple_turtles(
+    y_true: list[bool],
+    y_pred: list[list[float]],
+    colors: list[str],
+    canvas_width=500,
+    canvas_height=500,
+    margin=20,
+    stop_at: Optional[float] = None,
+) -> turtle.Canvas:
     screen = set_up_turtle_screen(canvas_width, canvas_height, margin)
 
     number_of_positive_labels = sum(y_true)
@@ -56,11 +88,14 @@ def draw_roc_curve_with_multiple_turtles(y_true: list[bool], y_pred: list[list[f
     for y_pred_per_classifier in y_pred:
         labels_sorted.append(get_sorted_labels(y_true, y_pred_per_classifier))
 
-    for i in range(len(y_true)):
-        if i > stop_at * len(y_true):
-            break
-        with turtle.hold_canvas(screen.cv):
+    if stop_at:
+        path_range = int(stop_at * len(y_true))
+    else:
+        path_range = len(y_true)
+
+    with turtle.hold_canvas(screen.cv):
+        for i in range(path_range):
             for j, t in enumerate(turtles):
                 move_turtle(t, labels_sorted[j][i], step_size_up, step_size_right)
-    
+
     return screen.cv
